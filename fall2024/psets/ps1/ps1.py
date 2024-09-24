@@ -67,5 +67,25 @@ def BC(n, b, k):
     return digits
 
 def radixSort(univsize, base, arr):
-    """TODO: Implement Radix Sort using BC and singletonBucketSort"""
-    return [] 
+    """ arr[i][0] is the key K_i, arr[i][1][0] is the value V_i, arr[i][1][1] is the list of coefficients V_i' """
+    n = len(arr)
+    k = math.ceil(math.log(univsize) / math.log(base))
+
+    """for each element in the array, get the coefficient list"""
+    for i in range(n):
+        arr[i] = [arr[i][0], (arr[i][1], BC(arr[i][0], base, k))]
+
+    """for each digit"""
+    for i in range(k):
+        """go through the whole array arr and SBS the keys"""
+        for j in range(n):
+            """set new keys based off current digit place"""
+            arr[j][0] = arr[j][1][1][i]
+        arr = singletonBucketSort(base, arr)
+
+    for i in range(n):
+        arr[i][0] = 0
+        for j in range(k):
+            arr[i][0] += arr[i][1][1][j] * (base ** j)
+        arr[i] = (arr[i][0],arr[i][1])  
+    return arr
