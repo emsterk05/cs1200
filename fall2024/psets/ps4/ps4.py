@@ -32,11 +32,33 @@ returns: An key-value pair (Kj, Vj) such that Kj is an i’th smallest key.
 
 def QuickSelect(arr, i):
     # Your code here
-
     # Feel free to use get_random_index(arr) or get_random_int(start_inclusive, end_inclusive)
     # ... see the helper functions below
-    pass
-    return (0, -1)
+    if len(arr) <= 1:
+        return arr[0]
+    p = get_random_index(arr)
+    pivot = arr[p][0]
+    # split arr into arr_smaller, arr_equal, arr_larger
+    arr_smaller = []
+    arr_equal = []
+    arr_larger = []
+    for key, value in arr:
+        if key < pivot:
+            arr_smaller.append((key, value))
+        elif key > pivot:
+            arr_larger.append((key, value))
+        else:
+            arr_equal.append((key, value))
+    # get sizes
+    n_smaller = len(arr_smaller)
+    n_equal = len(arr_equal)
+    if i < n_smaller:
+        return QuickSelect(arr_smaller, i)
+    elif i >= n_smaller + n_equal:
+        return QuickSelect(arr_larger, i - n_smaller - n_equal)
+    else:
+        return arr_equal[0]
+            
 
 
 '''
@@ -54,8 +76,11 @@ NOTE: This is different from the QuickSelect definition. This function takes in 
 def MergeSortSelect(arr, query_list):
     # Only call MergeSort once
     # ... MergeSort has already been implemented for you (see below)
-    pass
-    return [(0, -1)] * len(query_list)  # replace this line with your return
+    arr_sorted = MergeSort(arr)
+    arr_final = []
+    for q in query_list:
+        arr_final.append(arr_sorted[q])
+    return arr_final
 
 
 ##################################
@@ -67,11 +92,11 @@ def MergeSortSelect(arr, query_list):
 
 def experiments():
     # Edit this parameter
-    k = [1, 1, 1, 1, 1]
+    k = [15, 17, 19, 21, 23]
 
     # Feel free to edit these initial parameters
 
-    RUNS = 20  # Number of runs for each trial; more runs means better distributions approximation but longer experiment
+    RUNS = 40  # Number of runs for each trial; more runs means better distributions approximation but longer experiment
     HEIGHT = 1.5  # Height of a chart
     WIDTH = 3   # Width of a chart
     # Determines if subcharts share the same axis scale/limits

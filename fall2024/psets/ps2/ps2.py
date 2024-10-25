@@ -61,7 +61,7 @@ class BinarySearchTree:
         if left_size > ind and self.left is not None:
             return self.left.select(ind)
         if left_size < ind and self.right is not None:
-            return self.right.select(ind)
+            return self.right.select(ind - left_size - 1)
         return None
 
 
@@ -92,14 +92,15 @@ class BinarySearchTree:
         if self.key is None:
             self.key = key
         elif self.key > key: 
+            self._size += 1
             if self.left is None:
                 self.left = BinarySearchTree(self.debugger)
             self.left.insert(key)
         elif self.key < key:
+            self._size += 1
             if self.right is None:
                 self.right = BinarySearchTree(self.debugger)
             self.right.insert(key)
-        self.calculate_sizes()
         return self
 
     
@@ -126,8 +127,36 @@ class BinarySearchTree:
         /
        11 
     '''
+    def size_checker(self, inputnode):
+        if inputnode:
+            return inputnode._size
+        else:
+            return 0
+        
     def rotate(self, direction, child_side):
-        # Your code goes here
+        # get child based off of child_side
+        if child_side == "R":
+            child = self.right
+        else:
+            child = self.left
+        # rotate based off direction
+        if direction == "L":
+            temp = child.right
+            child.right = temp.left
+            child._size = 1 + self.size_checker(child.left) + self.size_checker(temp.left)
+            temp.left = child
+            temp._size = 1 + self.size_checker(child) + self.size_checker(temp.right)
+        else: # direction is "R"
+            temp = child.left
+            child.left = temp.right
+            child._size = 1 + self.size_checker(child.right) + self.size_checker(temp.right)
+            temp.right = child
+            temp._size = 1 + self.size_checker(temp.left) + self.size_checker(child)
+        # reset self
+        if child_side == "R":
+            self.right = temp
+        else:
+            self.left = temp
         return self
 
     def print_bst(self):

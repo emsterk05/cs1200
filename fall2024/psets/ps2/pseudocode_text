@@ -1,0 +1,25 @@
+function rotate(direction, child_side):
+    if child_side is "R":
+        child = right child of current node
+    else:
+        child = left child of current node
+    
+    if direction is "L":  # Left rotation
+        temp = right child of 'child'
+        set right child of 'child' to left child of 'temp'
+        update size of 'child' using size of its left child and left child of 'temp'
+        set left child of 'temp' to 'child'
+        update size of 'temp' using size of 'child' and right child of 'temp'
+    else:  # Right rotation
+        temp = left child of 'child'
+        set left child of 'child' to right child of 'temp'
+        update size of 'child' using size of its right child and right child of 'temp'
+        set right child of 'temp' to 'child'
+        update size of 'temp' using size of 'temp's left child and 'child'
+
+    if child_side is "R":
+        set right child of current node to 'temp'
+    else:
+        set left child of current node to 'temp'
+
+    return current node
