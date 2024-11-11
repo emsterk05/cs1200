@@ -151,6 +151,7 @@ def bron_kerbosch_max_indep_set(G, R, P, X):
 # Precondition: Assumes that the precolored_nodes form an independent set.
 # If successful, modifies G.colors and returns the coloring.
 # If no coloring is possible, resets all of G's colors to None and returns None.
+'''
 def bfs_2_coloring(G, precolored_nodes=None):
     # Assign every precolored node to have color 2
     # Initialize visited set to contain precolored nodes if they exist
@@ -170,7 +171,51 @@ def bfs_2_coloring(G, precolored_nodes=None):
     
     G.reset_colors()
     return None
+'''
+def bfs_2_coloring(G, precolored_nodes=None):
+    # Assign every precolored node to have color 2
+    # Initialize visited set to contain precolored nodes if they exist
+    visited = set()
+    G.reset_colors()
+    preset_color = 2
+    
+    if precolored_nodes is not None:
+        for node in precolored_nodes:
+            G.colors[node] = preset_color
+            visited.add(node)
 
+        if len(precolored_nodes) == G.N:
+            return G.colors
+    
+    # Iterate through all *unvisited* nodes to handle graphs that aren’t connected
+    for start_node in range(G.N):
+        if start_node not in visited:
+            # Start BFS
+            frontier = {start_node}  # Frontier
+            G.colors[start_node] = 0  
+            visited.add(start_node)
+
+            while frontier:
+                next_frontier = set()
+
+                for vertex in frontier:
+                    current_color = G.colors[vertex]
+                    next_color = 1 - current_color  # Alternate current color between 0 and 1
+
+                    # Check all neighbors to create the next frontier!
+                    for neighbor in G.edges[vertex]:
+                        if neighbor not in visited:
+                            G.colors[neighbor] = next_color
+                            visited.add(neighbor)
+                            next_frontier.add(neighbor)
+                        elif G.colors[neighbor] == current_color:
+                            # If we accidentally set a neighbor to the same color, the whole coloring is invalid
+                            G.reset_colors()
+                            return None
+                
+                frontier = next_frontier  # Move to the next frontier
+
+    return G.colors
 
 
 '''
@@ -185,6 +230,7 @@ def bfs_2_coloring(G, precolored_nodes=None):
 # Given an instance of the Graph class G (which has a subset of precolored nodes), searches for a 3 coloring
 # If successful, modifies G.colors and returns the coloring.
 # If no coloring is possible, resets all of G's colors to None and returns None.
+'''
 def iset_bfs_3_coloring(G):
     # TODO: Complete this function.
 
@@ -196,3 +242,30 @@ if __name__ == "__main__":
     G0 = Graph(2).add_edge(0, 1)
     print(bfs_2_coloring(G0))
     print(iset_bfs_3_coloring(G0))
+'''
+def iset_bfs_3_coloring(G):
+    # reset all vertex colors in the graph to the initial uncolored state
+    G.reset_colors()
+
+    # iterate over each maximal independent set (mis) in the graph
+    for independent_set in get_maximal_isets(G):
+        # create a temporary copy of the graph to test coloring with the current mis
+        temp_graph = G.clone()
+        
+        # pre-color each vertex in the independent set with color 2
+        for node in independent_set:
+            temp_graph.colors[node] = 2
+            
+        # attempt to perform bfs-based 2-coloring on the temporary graph,
+        # treating the current independent set vertices as pre-colored
+        color_result = bfs_2_coloring(temp_graph, precolored_nodes=independent_set)
+        
+        # if bfs 2-coloring succeeds without conflicts (returns non-none),
+        # we consider the coloring valid and return the colored graph state
+        if color_result is not None:
+            return temp_graph.colors
+
+    # if no valid coloring was found for any independent set, reset colors
+    # in the original graph to the initial state and return none
+    G.reset_colors()
+    return None
